@@ -1,76 +1,29 @@
-resource "random_pet" "rg_name" {
-  prefix = "rg"
+resource "azurerm_resource_group" "qs101" {
+  name     = "rg-qs101"
+  location = "westus2"
+}
+# Provision a Lab Service Account and a Lab that are in public preview
+resource "azapi_resource" "qs101-account" {
+  type      = "Microsoft.LabServices/labaccounts@2018-10-15"
+  name      = "qs101LabAccount"
+  parent_id = azurerm_resource_group.qs101.id
+
+  body = jsonencode({
+    properties = {
+      enabledRegionSelection = false
+    }
+  })
 }
 
-resource "random_pet" "acr_name" {
-  prefix    = "acr"
-  separator = ""
-}
+resource "azapi_resource" "qs101-lab" {
+  type      = "Microsoft.LabServices/labaccounts/labs@2018-10-15"
+  name      = "qs101Lab"
+  parent_id = azapi_resource.qs101-account.id
 
-resource "random_pet" "acrtask_name" {
-  prefix = "acrtask"
-  length = 1
-}
-
-resource "random_pet" "ca_env" {
-  prefix = "caenv"
-}
-
-resource "random_pet" "ca" {
-  prefix = "ca"
-}
-
-data "azurerm_client_config" "current" {}
-
-resource "azurerm_key_vault" "kv" {
-  name                = "kv-sichuan"
-  resource_group_name = azurerm_resource_group.rg.name
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  location            = azurerm_resource_group.rg.location 
-  sku_name            = "standard" 
-}
-
-resource "azurerm_key_vault_secret" "gh_pat" {
-  name         = "mcg-gh-pat"
-  key_vault_id = azurerm_key_vault.kv.id
-  value        = "sichuan-1234567890"
-}
-
-resource "azurerm_resource_group" "rg" {
-  name     = random_pet.rg_name.id
-  location = "eastus"
-}
-
-resource "azurerm_log_analytics_workspace" "law" {
-  name                = "example"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-}
-
-resource "azurerm_container_registry" "acr" {
-  name                = random_pet.acr_name.id
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku                 = "Premium"
-  admin_enabled       = true
-}
-
-resource "azurerm_container_registry_task" "acr_task" {
-  name                  = random_pet.acrtask_name.id
-  container_registry_id = azurerm_container_registry.acr.id
-  platform {
-    os = "Linux"
-  }
-  docker_step {
-    dockerfile_path      = "Dockerfile"
-    context_path         = "https://github.com/Azure-Samples/aci-helloworld.git#master"
-    context_access_token = azurerm_key_vault_secret.gh_pat.value
-    image_names          = ["helloworld:{{.Run.ID}}", "helloworld:latest"]
-  }
-}
-
-resource "azurerm_container_registry_task_schedule_run_now" "runacrtask" {
-  container_registry_task_id = azurerm_container_registry_task.acr_task.id
+  body = jsonencode({
+    properties = {
+      maxUsersInLab  = 10
+      userAccessMode = "Restricted"
+    }
+  })
 }
