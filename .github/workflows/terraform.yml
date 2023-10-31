@@ -59,17 +59,16 @@ jobs:
     
     # Add a comment to pull requests with plan results
     - uses: actions/github-script@v6
-    # if: github.event_name == 'pull_request'
       id: comment
       with:
         script: |
-          github.issues.createComment({
+          github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'test'
+            body: '👋 Thanks for reporting!'
           })
-      # id: comment
+      # if: github.event_name == 'pull_request'
       # env:
       #   PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       # with:
