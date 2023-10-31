@@ -60,12 +60,15 @@ jobs:
     # Add a comment to pull requests with plan results
     - uses: actions/github-script@v6
     # if: github.event_name == 'pull_request'
-      id: test
+      id: comment
       with:
-        script: return "Hello!"
-        result-encoding: string
-    - name: add-plan-comment
-      run: echo "${{steps.test.outputs.result}}"
+        script: |
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: 'test'
+          })
       # id: comment
       # env:
       #   PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
@@ -89,7 +92,7 @@ jobs:
       #       issue_number: context.issue.number,
       #       owner: context.repo.owner,
       #       repo: context.repo.repo,
-      #       body: output
+      #       body: 'test'
       #     })
 
       # On push to main, build or change infrastructure according to Terraform configuration files
