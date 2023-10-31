@@ -23,7 +23,7 @@ resource "azapi_resource" "qs101" {
 resource "azapi_resource" "qs101-account" {
   type      = "Microsoft.LabServices/labaccounts@2018-10-15"
   name      = "qs101LabAccount"
-  parent_id = azurerm_resource_group.qs101.id
+  parent_id = azapi_resource.qs101.id
 
   body = jsonencode({
     properties = {
