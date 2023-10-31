@@ -60,11 +60,12 @@ jobs:
     # Add a comment to pull requests with plan results
     - uses: actions/github-script@v6
     # if: github.event_name == 'pull_request'
+      id: test
       with:
         script: return "Hello!"
         result-encoding: string
     - name: add-plan-comment
-      run: echo "${{steps.set-result.outputs.result}}"
+      run: echo "${{steps.test.outputs.result}}"
       # id: comment
       # env:
       #   PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
