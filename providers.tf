@@ -12,12 +12,12 @@ terraform {
       source = "hashicorp/random"
     }
   }
-  backend "azurerm" {
-    resource_group_name = "tfstate"
-    storage_account_name = "tfstate8q1ou"
-    container_name = "tfstate"
-    key = "terraform.tfstate"
-  }
+  # backend "azurerm" {
+  #   resource_group_name = "tfstate"
+  #   storage_account_name = "tfstate8q1ou"
+  #   container_name = "tfstate"
+  #   key = "terraform.tfstate"
+  # }
 }
 
 provider "azapi" {
